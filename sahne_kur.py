@@ -276,7 +276,12 @@ if DREMPEL_STIL == 0:
 
     # Tüm sütunlar tek döngüde — sol(0) + orta + sag(son)
     for s in range(toplam_sutun):
-        tx = s * otomatik_aralik
+        if s == 0:
+            tx = T_SUTUN_GENISLIK / 2
+        elif s == toplam_sutun - 1:
+            tx = ust_toplam - T_SUTUN_GENISLIK / 2
+        else:
+            tx = s * otomatik_aralik
 
         boy = T_UZUN_BOY if s % 2 == 0 else T_KISA_BOY
         for j in range(boy):
