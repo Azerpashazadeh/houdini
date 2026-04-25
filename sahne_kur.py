@@ -271,14 +271,12 @@ if DREMPEL_STIL == 0:
                      tx=tx, ty=0.01, tz=tz_kat, mat='beyaz_cizgi')
             drempel_elemanlar.append(n)
 
+    # Orta sutunlar sol ve sag kenar arasinda esit aralikla otomatik hizalanir
+    otomatik_aralik = ust_toplam / (toplam_sutun - 1)
+
     # Tüm sütunlar tek döngüde — sol(0) + orta + sag(son)
     for s in range(toplam_sutun):
-        if s == 0:
-            tx = T_SUTUN_GENISLIK / 2
-        elif s == toplam_sutun - 1:
-            tx = ust_toplam - T_SUTUN_GENISLIK / 2
-        else:
-            tx = s * T_SUTUN_ARALIK + T_SUTUN_GENISLIK / 2
+        tx = s * otomatik_aralik
 
         boy = T_UZUN_BOY if s % 2 == 0 else T_KISA_BOY
         for j in range(boy):
