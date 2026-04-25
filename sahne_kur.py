@@ -88,7 +88,6 @@ for i, tz in enumerate([-8, -4, 0, 4, 8]):
 try:
     node = hou.node('/obj/trafik_yolu')
 
-    # Yaya gecidi
     ADET              = node.parm('yaya_adet').eval()
     GENISLIK          = node.parm('yaya_genislik').eval()
     KALINLIK          = node.parm('yaya_kalinlik').eval()
@@ -99,7 +98,6 @@ try:
     KONUM_X           = node.parm('yaya_konum_x').eval()
     KONUM_Y           = node.parm('yaya_konum_y').eval()
 
-    # Blok markering
     BLOK_ADET         = node.parm('blok_adet').eval()
     BLOK_GENISLIK     = node.parm('blok_genislik').eval()
     BLOK_KALINLIK     = node.parm('blok_kalinlik').eval()
@@ -110,13 +108,11 @@ try:
     BLOK_KONUM_X      = node.parm('blok_konum_x').eval()
     BLOK_KONUM_Y      = node.parm('blok_konum_y').eval()
 
-    # Drempel — ortak
     DREMPEL_STIL      = node.parm('drempel_stil').eval()
     DREMPEL_KONUM_X   = node.parm('drempel_konum_x').eval()
     DREMPEL_KONUM_Y   = node.parm('drempel_konum_y').eval()
     DREMPEL_KONUM_Z   = node.parm('drempel_konum_z').eval()
 
-    # Drempel — T stili (Tugla)
     T_UST_GENISLIK    = node.parm('t_ust_genislik').eval()
     T_UST_UZUNLUK     = node.parm('t_ust_uzunluk').eval()
     T_UST_SAY         = node.parm('t_ust_say').eval()
@@ -130,7 +126,6 @@ try:
     T_UZUN_BOY        = node.parm('t_uzun_boy').eval()
     T_KISA_BOY        = node.parm('t_kisa_boy').eval()
 
-    # Drempel — H stili (Hat)
     H_UST_GENISLIK    = node.parm('h_ust_genislik').eval()
     H_SUTUN_GENISLIK  = node.parm('h_sutun_genislik').eval()
     H_SUTUN_SAY       = node.parm('h_sutun_say').eval()
@@ -140,7 +135,6 @@ try:
     H_YUKSEKLIK       = node.parm('h_yukseklik').eval()
 
 except:
-    # Yaya gecidi
     ADET              = 6
     GENISLIK          = 4.5
     KALINLIK          = 0.02
@@ -151,7 +145,6 @@ except:
     KONUM_X           = 0
     KONUM_Y           = 0.01
 
-    # Blok markering
     BLOK_ADET         = 4
     BLOK_GENISLIK     = 2.0
     BLOK_KALINLIK     = 0.02
@@ -162,13 +155,11 @@ except:
     BLOK_KONUM_X      = 0
     BLOK_KONUM_Y      = 0.01
 
-    # Drempel — ortak
     DREMPEL_STIL      = 0
     DREMPEL_KONUM_X   = 0
     DREMPEL_KONUM_Y   = 0.01
     DREMPEL_KONUM_Z   = 0
 
-    # Drempel — T stili (Tugla)
     T_UST_GENISLIK    = 0.2
     T_UST_UZUNLUK     = 0.1
     T_UST_SAY         = 10
@@ -182,7 +173,6 @@ except:
     T_UZUN_BOY        = 5
     T_KISA_BOY        = 2
 
-    # Drempel — H stili (Hat)
     H_UST_GENISLIK    = 0.3
     H_SUTUN_GENISLIK  = 0.1
     H_SUTUN_SAY       = 3
@@ -191,7 +181,7 @@ except:
     H_KISA_BOY        = 0.5
     H_YUKSEKLIK       = 0.05
 
-# Tek sayıya zorla — parametreyi de güncelle
+# Tek sayıya zorla — sol ve sag her zaman uzun olsun
 if T_SUTUN_SAY % 2 == 0:
     T_SUTUN_SAY += 1
     try:
@@ -252,53 +242,55 @@ drempel_elemanlar = []
 
 if DREMPEL_STIL == 0:
     # ========== T STİLİ (TUGLA) ==========
-    # Üst sıra toplam genişliği
-    ust_toplam = T_UST_SAY * (T_UST_GENISLIK + T_ARALIK) - T_ARALIK
 
-    # Üst yatay sıra — 1 veya 2 kat (Z ekseninde yan yana)
+    # Sütunların toplam kapladığı genişlik (sol + orta + sag)
+    toplam_sutun = T_SUTUN_SAY + 2
+    sutun_toplam_genislik = (toplam_sutun - 1) * T_SUTUN_ARALIK + T_SUTUN_GENISLIK
+
+    # Üst sıra genişliği — sütun genişliğinden küçükse otomatik artır
+    ust_toplam = T_UST_SAY * (T_UST_GENISLIK + T_ARALIK) - T_ARALIK
+    while ust_toplam < sutun_toplam_genislik:
+        T_UST_SAY += 1
+        ust_toplam = T_UST_SAY * (T_UST_GENISLIK + T_ARALIK) - T_ARALIK
+
+    # Üst sıranın alt Z kenarı (sütunlar buradan başlar, boşluksuz)
+    # Kat 0 merkezi: tz=0, alt kenarı: -T_UST_UZUNLUK/2
+    # Kat 1 merkezi: tz=T_UST_UZUNLUK+T_ARALIK, alt kenarı: T_UST_UZUNLUK+T_ARALIK-T_UST_UZUNLUK/2
+    # Son kat alt kenarı = (T_UST_KAT-1)*(T_UST_UZUNLUK+T_ARALIK) - T_UST_UZUNLUK/2
+    # Ama üst sıra Z ekseninde negatife doğru gidiyor:
+    # tz_kat = -kat * (T_UST_UZUNLUK + T_ARALIK)
+    # Son kat alt kenarı = -(T_UST_KAT-1)*(T_UST_UZUNLUK+T_ARALIK) - T_UST_UZUNLUK/2
+    ust_alt_z = -((T_UST_KAT - 1) * (T_UST_UZUNLUK + T_ARALIK) + T_UST_UZUNLUK / 2)
+
+    # Üst yatay sıra — 1 veya 2 kat (Z ekseninde negatife doğru)
     for kat in range(T_UST_KAT):
-        tz_kat = kat * (T_UST_UZUNLUK + T_ARALIK)
+        tz_kat = -(kat * (T_UST_UZUNLUK + T_ARALIK))
         for i in range(T_UST_SAY):
             tx = i * (T_UST_GENISLIK + T_ARALIK) + T_UST_GENISLIK / 2
             n = kutu(f'ust_kat{kat}_{i}', T_UST_GENISLIK, T_KALINLIK, T_UST_UZUNLUK,
                      tx=tx, ty=0.01, tz=tz_kat, mat='beyaz_cizgi')
             drempel_elemanlar.append(n)
 
-    # Sütunlar üst sıranın hemen altından başlar
-    ust_alt_z = -(T_UST_KAT * (T_UST_UZUNLUK + T_ARALIK))
-    uzun_merkez_z = ust_alt_z - (T_UZUN_BOY * (T_SUTUN_UZUNLUK + T_ARALIK) - T_ARALIK) / 2
-    kisa_merkez_z = ust_alt_z - (T_KISA_BOY * (T_SUTUN_UZUNLUK + T_ARALIK) - T_ARALIK) / 2
-
     # Tüm sütunlar tek döngüde — sol(0) + orta + sag(son)
-    toplam_sutun = T_SUTUN_SAY + 2
     for s in range(toplam_sutun):
         if s == 0:
-            tx = T_SUTUN_GENISLIK / 2  # Sol kenar — sol ucu 0'da
+            tx = T_SUTUN_GENISLIK / 2
         elif s == toplam_sutun - 1:
-            tx = ust_toplam - T_SUTUN_GENISLIK / 2  # Sag kenar — sag ucu ust_toplam'da
+            tx = ust_toplam - T_SUTUN_GENISLIK / 2
         else:
-            tx = s * T_SUTUN_ARALIK + T_SUTUN_GENISLIK / 2  # Orta sütunlar
+            tx = s * T_SUTUN_ARALIK + T_SUTUN_GENISLIK / 2
 
-        if s % 2 == 0:
-            # Uzun sütun — kepriç tek tek
-            for j in range(T_UZUN_BOY):
-                tz = ust_alt_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
-                n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
-                         tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
-                drempel_elemanlar.append(n)
-        else:
-            # Kisa sütun — kepriç tek tek
-            for j in range(T_KISA_BOY):
-                tz = ust_alt_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
-                n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
-                         tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
-                drempel_elemanlar.append(n)
+        boy = T_UZUN_BOY if s % 2 == 0 else T_KISA_BOY
+        for j in range(boy):
+            tz = ust_alt_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
+            n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
+                     tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
+            drempel_elemanlar.append(n)
 
 else:
     # ========== H STİLİ (HAT) ==========
     ust_toplam = (H_SUTUN_SAY + 1) * H_SUTUN_ARALIK + H_SUTUN_GENISLIK
 
-    # Üst yatay hat
     n = kutu('ust_hat', ust_toplam, H_YUKSEKLIK, H_UST_GENISLIK,
              tx=ust_toplam / 2, ty=0.01, tz=0, mat='beyaz_cizgi')
     drempel_elemanlar.append(n)
@@ -307,15 +299,14 @@ else:
     uzun_merkez_z = ust_alt_z - (H_UZUN_BOY / 2)
     kisa_merkez_z = ust_alt_z - (H_KISA_BOY / 2)
 
-    # Tüm sütunlar tek döngüde — sol(0) + orta + sag(son)
     toplam_sutun = H_SUTUN_SAY + 2
     for s in range(toplam_sutun):
         if s == 0:
-            tx = H_SUTUN_GENISLIK / 2  # Sol kenar
+            tx = H_SUTUN_GENISLIK / 2
         elif s == toplam_sutun - 1:
-            tx = ust_toplam - H_SUTUN_GENISLIK / 2  # Sag kenar
+            tx = ust_toplam - H_SUTUN_GENISLIK / 2
         else:
-            tx = s * H_SUTUN_ARALIK + H_SUTUN_GENISLIK / 2  # Orta sütunlar
+            tx = s * H_SUTUN_ARALIK + H_SUTUN_GENISLIK / 2
 
         if s % 2 == 0:
             n = kutu(f'sutun_{s}', H_SUTUN_GENISLIK, H_YUKSEKLIK, H_UZUN_BOY,
