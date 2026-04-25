@@ -252,36 +252,47 @@ drempel_elemanlar = []
 
 if DREMPEL_STIL == 0:
     # ========== T STİLİ (TUGLA) ==========
+    # Üst sıra toplam genişliği
     ust_toplam = T_UST_SAY * (T_UST_GENISLIK + T_ARALIK) - T_ARALIK
 
-    # Üst yatay sıra — 1 veya 2 kat
+    # Üst yatay sıra — 1 veya 2 kat (Z ekseninde yan yana)
     for kat in range(T_UST_KAT):
         tz_kat = kat * (T_UST_UZUNLUK + T_ARALIK)
         for i in range(T_UST_SAY):
-            tx = i * (T_UST_GENISLIK + T_ARALIK)
+            tx = i * (T_UST_GENISLIK + T_ARALIK) + T_UST_GENISLIK / 2
             n = kutu(f'ust_kat{kat}_{i}', T_UST_GENISLIK, T_KALINLIK, T_UST_UZUNLUK,
                      tx=tx, ty=0.01, tz=tz_kat, mat='beyaz_cizgi')
             drempel_elemanlar.append(n)
 
-    ust_bitis_z = -(T_UST_KAT * (T_UST_UZUNLUK + T_ARALIK))
+    # Sütunlar üst sıranın hemen altından başlar
+    ust_alt_z = -(T_UST_KAT * (T_UST_UZUNLUK + T_ARALIK))
+    uzun_merkez_z = ust_alt_z - (T_UZUN_BOY * (T_SUTUN_UZUNLUK + T_ARALIK) - T_ARALIK) / 2
+    kisa_merkez_z = ust_alt_z - (T_KISA_BOY * (T_SUTUN_UZUNLUK + T_ARALIK) - T_ARALIK) / 2
 
     # Tüm sütunlar tek döngüde — sol(0) + orta + sag(son)
-    # Toplam sütun sayisi = T_SUTUN_SAY + 2 (sol ve sag dahil)
     toplam_sutun = T_SUTUN_SAY + 2
     for s in range(toplam_sutun):
         if s == 0:
-            tx = 0  # Sol kenar
+            tx = T_SUTUN_GENISLIK / 2  # Sol kenar — sol ucu 0'da
         elif s == toplam_sutun - 1:
-            tx = ust_toplam - T_SUTUN_GENISLIK  # Sag kenar
+            tx = ust_toplam - T_SUTUN_GENISLIK / 2  # Sag kenar — sag ucu ust_toplam'da
         else:
-            tx = s * T_SUTUN_ARALIK  # Orta sütunlar
+            tx = s * T_SUTUN_ARALIK + T_SUTUN_GENISLIK / 2  # Orta sütunlar
 
-        boy = T_UZUN_BOY if s % 2 == 0 else T_KISA_BOY
-        for j in range(boy):
-            tz = ust_bitis_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
-            n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
-                     tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
-            drempel_elemanlar.append(n)
+        if s % 2 == 0:
+            # Uzun sütun — kepriç tek tek
+            for j in range(T_UZUN_BOY):
+                tz = ust_alt_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
+                n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
+                         tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
+                drempel_elemanlar.append(n)
+        else:
+            # Kisa sütun — kepriç tek tek
+            for j in range(T_KISA_BOY):
+                tz = ust_alt_z - (j * (T_SUTUN_UZUNLUK + T_ARALIK)) - T_SUTUN_UZUNLUK / 2
+                n = kutu(f'sutun_{s}_{j}', T_SUTUN_GENISLIK, T_KALINLIK, T_SUTUN_UZUNLUK,
+                         tx=tx, ty=0.01, tz=tz, mat='beyaz_cizgi')
+                drempel_elemanlar.append(n)
 
 else:
     # ========== H STİLİ (HAT) ==========
