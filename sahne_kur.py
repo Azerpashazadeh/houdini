@@ -202,9 +202,9 @@ for i in range(ADET):
     n.parm('sizex').set(GENISLIK)
     n.parm('sizey').set(KALINLIK)
     n.parm('sizez').set(UZUNLUK)
-    n.parm('ty').set(KONUM_Y)
+    n.parm('ty').set(0.01)
     n.parm('tz').set(BASLANGIC_Z + i * ARA_MESAFE)
-    n.parm('tx').set(KONUM_X)
+    n.parm('tx').set(0)
     m = n.createOutputNode('material')
     m.parm('shop_materialpath1').set('/mat/beyaz_cizgi')
     yayalar.append(m)
@@ -213,8 +213,14 @@ yaya_merge = geo.createNode('merge', 'yaya_merge')
 for i, y in enumerate(yayalar):
     yaya_merge.setInput(i, y)
 
+# Önce kendi merkezi etrafinda döndür
 yaya_xform = yaya_merge.createOutputNode('xform', 'yaya_xform')
 yaya_xform.parm('ry').set(ROTATE)
+
+# Sonra konumlandir
+yaya_konum = yaya_xform.createOutputNode('xform', 'yaya_konum')
+yaya_konum.parm('tx').set(KONUM_X)
+yaya_konum.parm('ty').set(KONUM_Y)
 
 # ===== BLOK MARKERİNG =====
 bloklar = []
@@ -223,9 +229,9 @@ for i in range(BLOK_ADET):
     n.parm('sizex').set(BLOK_GENISLIK)
     n.parm('sizey').set(BLOK_KALINLIK)
     n.parm('sizez').set(BLOK_UZUNLUK)
-    n.parm('ty').set(BLOK_KONUM_Y)
+    n.parm('ty').set(0.01)
     n.parm('tz').set(BLOK_BASLANGIC + i * BLOK_ARA_MESAFE)
-    n.parm('tx').set(BLOK_KONUM_X)
+    n.parm('tx').set(0)
     m = n.createOutputNode('material')
     m.parm('shop_materialpath1').set('/mat/beyaz_cizgi')
     bloklar.append(m)
@@ -234,8 +240,14 @@ blok_merge = geo.createNode('merge', 'blok_merge')
 for i, b in enumerate(bloklar):
     blok_merge.setInput(i, b)
 
+# Önce kendi merkezi etrafinda döndür
 blok_xform = blok_merge.createOutputNode('xform', 'blok_xform')
 blok_xform.parm('ry').set(BLOK_ROTATE)
+
+# Sonra konumlandir
+blok_konum = blok_xform.createOutputNode('xform', 'blok_konum')
+blok_konum.parm('tx').set(BLOK_KONUM_X)
+blok_konum.parm('ty').set(BLOK_KONUM_Y)
 
 # ===== DREMPEL MARKERİNG =====
 drempel_elemanlar = []
@@ -333,7 +345,7 @@ ok_import = geo.createNode('object_merge', 'ok_import')
 ok_import.parm('objpath1').set('/obj/ok_atolyesi/material1')
 
 merge = geo.createNode('merge', 'tum_sahne')
-tum = [zemin_m, bsol, bsag, csol, csag] + kesikler + [yaya_xform] + [blok_xform] + [drempel_xform] + [ok_import]
+tum = [zemin_m, bsol, bsag, csol, csag] + kesikler + [yaya_konum] + [blok_konum] + [drempel_xform] + [ok_import]
 for i, n in enumerate(tum):
     merge.setInput(i, n)
 
