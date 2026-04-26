@@ -1,12 +1,8 @@
 import hou
 
 # ===== YAYA GECİDİ HDA =====
-obj_node = hou.pwd()
-
-# geo node'u bul veya olustur
-geo = obj_node.node('geo1')
-if not geo:
-    geo = obj_node.createNode('geo', 'geo1')
+# Bu HDA Geometry tipinde - hou.pwd() geo node'unu verir
+geo = hou.pwd()
 
 # Eski node'lari temizle
 for child in geo.children():
@@ -27,15 +23,15 @@ if mat_node and not mat_node.node('beyaz_cizgi'):
 
 # ===== PARAMETRELERİ OKU =====
 try:
-    ADET        = obj_node.parm('yaya_adet').eval()
-    GENISLIK    = obj_node.parm('yaya_genislik').eval()
-    KALINLIK    = obj_node.parm('yaya_kalinlik').eval()
-    UZUNLUK     = obj_node.parm('yaya_uzunluk').eval()
-    ARA_MESAFE  = obj_node.parm('yaya_ara_mesafe').eval()
-    BASLANGIC_Z = obj_node.parm('yaya_baslangic').eval()
-    ROTATE      = obj_node.parm('yaya_rotate').eval()
-    KONUM_X     = obj_node.parm('yaya_konum_x').eval()
-    KONUM_Y     = obj_node.parm('yaya_konum_y').eval()
+    ADET        = geo.parm('yaya_adet').eval()
+    GENISLIK    = geo.parm('yaya_genislik').eval()
+    KALINLIK    = geo.parm('yaya_kalinlik').eval()
+    UZUNLUK     = geo.parm('yaya_uzunluk').eval()
+    ARA_MESAFE  = geo.parm('yaya_ara_mesafe').eval()
+    BASLANGIC_Z = geo.parm('yaya_baslangic').eval()
+    ROTATE      = geo.parm('yaya_rotate').eval()
+    KONUM_X     = geo.parm('yaya_konum_x').eval()
+    KONUM_Y     = geo.parm('yaya_konum_y').eval()
 except Exception as e:
     print('Parametre hatasi:', e)
     ADET        = 8
