@@ -1,7 +1,6 @@
 import hou
 
 # ===== YAYA GECİDİ HDA =====
-# Bu HDA Geometry tipinde - hou.pwd() geo node'unu verir
 geo = hou.pwd()
 
 # Eski node'lari temizle
@@ -34,15 +33,15 @@ try:
     KONUM_Y     = geo.parm('yaya_konum_y').eval()
 except Exception as e:
     print('Parametre hatasi:', e)
-    ADET        = 8
-    GENISLIK    = 4.5
-    KALINLIK    = 0.02
-    UZUNLUK     = 0.5
-    ARA_MESAFE  = 0.5
+    ADET        = 5
+    GENISLIK    = 2.0
+    KALINLIK    = 0.003
+    UZUNLUK     = 0.6
+    ARA_MESAFE  = 0.8
     BASLANGIC_Z = 0.0
     ROTATE      = 0
     KONUM_X     = 0
-    KONUM_Y     = 0.01
+    KONUM_Y     = 0
 
 # ===== YAYA ŞERİTLERİ =====
 yayalar = []
@@ -52,7 +51,7 @@ for i in range(ADET):
     n.parm('sizey').set(KALINLIK)
     n.parm('sizez').set(UZUNLUK)
     n.parm('tx').set(0)
-    n.parm('ty').set(0.01)
+    n.parm('ty').set(KONUM_Y + 0.001)
     n.parm('tz').set(BASLANGIC_Z + i * ARA_MESAFE)
     m = n.createOutputNode('material')
     m.parm('shop_materialpath1').set('/mat/beyaz_cizgi')
