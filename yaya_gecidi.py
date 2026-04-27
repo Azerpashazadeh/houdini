@@ -31,6 +31,7 @@ try:
     ROTATE      = geo.parm('yaya_rotate').eval()
     KONUM_X     = geo.parm('yaya_konum_x').eval()
     KONUM_Y     = geo.parm('yaya_konum_y').eval()
+    KONUM_Z     = geo.parm('yaya_konum_z').eval()
 except Exception as e:
     print('Parametre hatasi:', e)
     ADET        = 5
@@ -42,6 +43,7 @@ except Exception as e:
     ROTATE      = 0
     KONUM_X     = 0
     KONUM_Y     = 0
+    KONUM_Z     = 0
 
 # ===== YAYA ŞERİTLERİ =====
 yayalar = []
@@ -51,7 +53,7 @@ for i in range(ADET):
     n.parm('sizey').set(KALINLIK)
     n.parm('sizez').set(UZUNLUK)
     n.parm('tx').set(0)
-    n.parm('ty').set(KONUM_Y + 0.001)
+    n.parm('ty').set(0.001)
     n.parm('tz').set(BASLANGIC_Z + i * ARA_MESAFE)
     m = n.createOutputNode('material')
     m.parm('shop_materialpath1').set('/mat/beyaz_cizgi')
@@ -67,6 +69,7 @@ xform.parm('ry').set(ROTATE)
 konum = xform.createOutputNode('xform', 'yaya_konum')
 konum.parm('tx').set(KONUM_X)
 konum.parm('ty').set(KONUM_Y)
+konum.parm('tz').set(KONUM_Z)
 
 konum.setDisplayFlag(True)
 geo.layoutChildren()
